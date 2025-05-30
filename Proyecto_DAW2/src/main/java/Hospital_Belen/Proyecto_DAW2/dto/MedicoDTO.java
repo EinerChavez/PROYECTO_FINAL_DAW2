@@ -1,5 +1,10 @@
 package Hospital_Belen.Proyecto_DAW2.dto;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MedicoDTO {
     public String nombre;
     public String apellido;

@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 @Configuration
 public class HikariCpConfig {
     @Value("${DB_USE_URL}")
@@ -37,13 +34,6 @@ public class HikariCpConfig {
         config.setConnectionTimeout(30000);
 
         HikariDataSource dataSource = new HikariDataSource(config);
-        try (Connection connection = dataSource.getConnection()) {
-            if (!connection.isClosed()) {
-                System.out.println("✅ Conexión exitosa a la base de datos desde HikariCpConfig.");
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Falló la conexión a la base de datos: " + e.getMessage());
-        }
 
         System.out.println("###### HikariCP initialized ######");
         return dataSource;
