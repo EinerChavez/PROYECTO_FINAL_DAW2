@@ -243,9 +243,46 @@ BEGIN
 
     SET v_id_usuario = LAST_INSERT_ID();
 
-    INSERT INTO MEDICOS (ID_MEDICO, ESPECIALIDAD, NUMERO_COLEGIADO, CODIGO_HOSPITAL)
+    INSERT INTO MEDICOS (ID_MEDICO, ESPECIALIDAD, NUMERO_COLEGIADO, CODIGO_MEDICO_HOSPITAL)
     VALUES (v_id_usuario, p_especialidad, p_numero_colegiado, p_codigo_hospital);
 
     COMMIT;
 END$$
-DELIMITER ;
+DELIMITER ;registrar_medic
+
+-- vista_usuarios_completa
+CREATE OR REPLACE VIEW vista_usuarios_completa AS
+SELECT 
+    u.ID_USUARIO,
+    u.NOMBRE,
+    u.APELLIDO,
+    u.SEXO,
+    u.TELEFONO,
+    u.EMAIL,
+    u.CONTRASENIA,
+    u.ROL,
+
+    -- Datos de paciente
+    p.FECHA_NACIMIENTO,
+    p.TALLA,
+    p.GRUPO_SANGUINEO,
+    p.DIRECCION,
+
+    -- Datos de médico
+    m.ESPECIALIDAD,
+    m.NUMERO_COLEGIADO,
+    m.CODIGO_MEDICO_HOSPITAL
+
+FROM 
+    USUARIOS u
+LEFT JOIN PACIENTES p ON u.ID_USUARIO = p.ID_PACIENTE
+LEFT JOIN MEDICOS m ON u.ID_USUARIO = m.ID_MEDICO;
+
+SELECT * FROM vista_usuarios_completa WHERE ID_USUARIO = 17;
+
+select *from PACIENTES;
+select *from MEDICOS;
+select* from USUARIOS
+
+
+
