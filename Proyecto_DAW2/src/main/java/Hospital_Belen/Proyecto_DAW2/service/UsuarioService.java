@@ -46,7 +46,6 @@ public class UsuarioService {
             query.execute();
 
         } catch (Exception e) {
-            // Aquí puedes usar un logger en lugar de println, si tienes uno configurado
             System.err.println("Error al registrar paciente: " + e.getMessage());
             throw new RuntimeException("Error al registrar paciente: " + e.getMessage(), e);
         }
