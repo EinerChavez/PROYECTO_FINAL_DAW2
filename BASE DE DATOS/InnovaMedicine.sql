@@ -4,6 +4,7 @@ CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE InnovaMedicine;
 
+
 -- Creamos la estructura de tablas para nuestra base de datos
 -- Tabla para los usuarios, auqellos que usaran el sistema, tanto medicos como pacientes
 CREATE TABLE USUARIOS (
@@ -20,7 +21,6 @@ CREATE TABLE USUARIOS (
    thv.chamakito@example.com password123 = medico
    Token = "QhwOQohWEdy6hrtEVpCR8IMJFgkSl57g"
    */
-select * from USUARIOS;
 
 -- Tabla de Médicos, solo para aquellos usuarios que tengan un rol de 'Medico'
 CREATE TABLE MEDICOS (
@@ -57,7 +57,6 @@ CREATE TABLE CITAS (
     UNIQUE (ID_MEDICO, FECHA, HORA)
 );
 
-select * from CITAS;
 
 CREATE TABLE RECETAS (
 	ID_RECETA INT auto_increment PRIMARY KEY,
@@ -71,9 +70,15 @@ CREATE TABLE RECETAS (
 CREATE TABLE MEDICAMENTOS_RECETA (
 	ID_MEDICAMENTO INT auto_increment PRIMARY KEY,
     ID_RECETA INT NOT NULL,
-    MEDICAMENTO TEXT,
+    MEDICAMENTO VARCHAR(100) NOT NULL,
+    DOSIS VARCHAR(50),
+    FRECUENCIA VARCHAR(50),
+    DURACION VARCHAR(50),
+    OBSERVACIONES TEXT,
+    CONSTRAINT fk_medicamento_receta
     FOREIGN KEY (ID_RECETA) REFERENCES RECETAS(ID_RECETA) ON DELETE CASCADE
 );
+
 
 -- Tabla para la disponibilidad de los medicos por día y horario
 CREATE TABLE DISPONIBILIDAD_MEDICA (
@@ -121,3 +126,11 @@ BEGIN
     COMMIT;
 END //
 DELIMITER ;
+
+SELECT*FROM USUARIOS;
+SELECT*FROM MEDICOS;
+SELECT*FROM CITAS;
+SELECT*FROM RECETAS;
+SELECT*FROM MEDICAMENTOS_RECETA;
+SELECT*FROM PACIENTES;
+
