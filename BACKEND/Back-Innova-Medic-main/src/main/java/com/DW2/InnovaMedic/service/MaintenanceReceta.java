@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MaintenanceReceta {
-    List<ListaRecetaDTO> listarTodas();
-    Optional<ListaRecetaDTO> obtenerPorId(Integer idReceta);
-    List<ListaRecetaDTO> listarPorIdPaciente(Integer idPaciente);
-    void eliminarPorId(Integer idReceta);
+    List<ListaRecetaDTO> listarTodas() throws Exception;
+    Optional<ListaRecetaDTO> obtenerPorId(Integer idReceta) throws Exception;
+    List<ListaRecetaDTO> listarPorIdPaciente(Integer idPaciente) throws Exception;
+    void eliminarPorId(Integer idReceta)throws Exception;
 
 }

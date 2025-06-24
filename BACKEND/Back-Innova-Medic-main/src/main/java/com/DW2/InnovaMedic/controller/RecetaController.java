@@ -22,49 +22,55 @@ public class RecetaController {
 
     @GetMapping
     public ResponseEntity<?> listarTodas() {
-        List<ListaRecetaDTO> recetas = recetaService.listarTodas();
-        if (recetas.isEmpty()) {
-            Map<String, String> mensaje = new HashMap<>();
-            mensaje.put("mensaje", "No hay recetas registradas.");
-            return new ResponseEntity<>(mensaje, HttpStatus.OK); // puedes usar 200 o 204
+        try {
+            List<ListaRecetaDTO> recetas = recetaService.listarTodas();
+            if (recetas.isEmpty()) {
+                Map<String, String> mensaje = new HashMap<>();
+                mensaje.put("mensaje", "No hay recetas registradas.");
+                return new ResponseEntity<>(mensaje, HttpStatus.OK);
+            }
+            return ResponseEntity.ok(recetas);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("error", "Error al listar recetas: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.ok(recetas);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Integer id) {
-        return recetaService.obtenerPorId(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> {
-                    Map<String, String> mensaje = new HashMap<>();
-                    mensaje.put("mensaje", "No se encontró la receta con ID: " + id);
-                    return new ResponseEntity<>(mensaje, HttpStatus.NOT_FOUND);
-                });
+        try {
+            return recetaService.obtenerPorId(id)
+                    .<ResponseEntity<?>>map(ResponseEntity::ok)
+                    .orElseGet(() -> new ResponseEntity<>(Map.of("mensaje", "No se encontró la receta con ID: " + id), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("error", "Error al obtener la receta: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/paciente/{idPaciente}")
     public ResponseEntity<?> listarPorIdPaciente(@PathVariable Integer idPaciente) {
-        List<ListaRecetaDTO> recetas = recetaService.listarPorIdPaciente(idPaciente);
-        if (recetas.isEmpty()) {
-            Map<String, String> mensaje = new HashMap<>();
-            mensaje.put("mensaje", "No hay recetas asociadas al paciente con ID: " + idPaciente);
-            return new ResponseEntity<>(mensaje, HttpStatus.OK); // también puede ser 204
+        try {
+            List<ListaRecetaDTO> recetas = recetaService.listarPorIdPaciente(idPaciente);
+            if (recetas.isEmpty()) {
+                return new ResponseEntity<>(Map.of("mensaje", "No hay recetas asociadas al paciente con ID: " + idPaciente), HttpStatus.OK);
+            }
+            return ResponseEntity.ok(recetas);
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("error", "Error al listar recetas del paciente: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.ok(recetas);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarPorId(@PathVariable Integer id) {
-        boolean existe = recetaService.obtenerPorId(id).isPresent();
-        if (!existe) {
-            Map<String, String> mensaje = new HashMap<>();
-            mensaje.put("mensaje", "No se encontró la receta con ID: " + id);
-            return new ResponseEntity<>(mensaje, HttpStatus.NOT_FOUND);
+        try {
+            boolean existe = recetaService.obtenerPorId(id).isPresent();
+            if (!existe) {
+                return new ResponseEntity<>(Map.of("mensaje", "No se encontró la receta con ID: " + id), HttpStatus.NOT_FOUND);
+            }
+            recetaService.eliminarPorId(id);
+            return ResponseEntity.ok(Map.of("mensaje", "Receta eliminada correctamente."));
+        } catch (Exception e) {
+            return new ResponseEntity<>(Map.of("error", "Error al eliminar la receta: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        recetaService.eliminarPorId(id);
-        Map<String, String> respuesta = new HashMap<>();
-        respuesta.put("mensaje", "Receta eliminada correctamente.");
-        return ResponseEntity.ok(respuesta);
     }
 
 }
