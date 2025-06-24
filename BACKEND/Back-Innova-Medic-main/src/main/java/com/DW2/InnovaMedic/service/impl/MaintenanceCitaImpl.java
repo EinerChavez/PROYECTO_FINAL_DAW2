@@ -3,6 +3,7 @@ package com.DW2.InnovaMedic.service.impl;
 import com.DW2.InnovaMedic.dto.cita.ActionCitaMedicoDTO;
 import com.DW2.InnovaMedic.dto.cita.CitaDTO;
 import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
+import com.DW2.InnovaMedic.dto.cita.MedicamentoRecetaRequestDTO;
 import com.DW2.InnovaMedic.entity.*;
 import com.DW2.InnovaMedic.repository.*;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
@@ -15,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -100,40 +99,59 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         recetaRepository.save(receta);
     }
 
-    private void medicamentosReceta(Integer idCita, List<String> listaMedicamentos) {
+    private void medicamentosReceta(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos) {
         Receta receta = recetaRepository.findByCita_IdCitas(idCita)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "Receta no encontrada para la cita con ID: " + idCita
                 ));
 
-        medicamentoRecetaRepository.deleteByReceta_IdReceta(receta.getIdReceta());
+        List<MedicamentoReceta> medicamentosActuales = medicamentoRecetaRepository.deleteByReceta_IdReceta(receta.getIdReceta());
 
-        if (listaMedicamentos != null && !listaMedicamentos.isEmpty()) {
-            List<MedicamentoReceta> medicamentos = listaMedicamentos.stream()
-                    .filter(medicamento -> medicamento != null && !medicamento.trim().isEmpty())
-                    .map(medicamento -> {
-                        MedicamentoReceta mr = new MedicamentoReceta();
-                        mr.setReceta(receta);
-                        mr.setMedicamento(medicamento.trim());
-                        return mr;
-                    })
-                    .collect(Collectors.toList());
+        for (MedicamentoReceta actual : medicamentosActuales){
+            boolean existeEnNuevos = listaMedicamentos.stream().anyMatch(nuevo ->
+                    actual.getMedicamento().equalsIgnoreCase(nuevo.medicamento().trim()) &&
+                            actual.getDosis().equalsIgnoreCase(nuevo.dosis().trim()) &&
+                            actual.getFrecuencia().equalsIgnoreCase(nuevo.frecuencia().trim()) &&
+                            actual.getDuracion().equalsIgnoreCase(nuevo.duracion().trim()) &&
+                            actual.getObservaciones().equalsIgnoreCase(nuevo.Observaciones().trim())
+            );
 
-            if (!medicamentos.isEmpty()) {
-                medicamentoRecetaRepository.saveAll(medicamentos);
+            if (!existeEnNuevos) {
+                medicamentoRecetaRepository.delete(actual);
             }
         }
+
+        for (MedicamentoRecetaRequestDTO nuevo : listaMedicamentos) {
+            boolean yaExiste = medicamentosActuales.stream().anyMatch(actual ->
+                    actual.getMedicamento().equalsIgnoreCase(nuevo.medicamento().trim()) &&
+                            actual.getDosis().equalsIgnoreCase(nuevo.dosis().trim()) &&
+                            actual.getFrecuencia().equalsIgnoreCase(nuevo.frecuencia().trim()) &&
+                            actual.getDuracion().equalsIgnoreCase(nuevo.duracion().trim()) &&
+                            actual.getObservaciones().equalsIgnoreCase(nuevo.Observaciones().trim())
+            );
+
+            if (!yaExiste){
+                MedicamentoReceta mr = new MedicamentoReceta();
+                mr.setReceta(receta);
+                mr.setMedicamento(nuevo.medicamento().trim());
+                mr.setDosis(nuevo.dosis().trim());
+                mr.setFrecuencia(nuevo.frecuencia().trim());
+                mr.setDuracion(nuevo.duracion().trim());
+                mr.setObservaciones(nuevo.Observaciones().trim());
+                medicamentoRecetaRepository.save(mr);
+            }
+            }
     }
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles, citasById"}, allEntries = true)
-    public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico) {
-        actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
+    public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO actionCitaMedicoDTO, String nombreMedico) {
+        actualizarInformacionCita(idCita, actionCitaMedicoDTO.notasMedicas(), actionCitaMedicoDTO.diagnostico());
 
-        actualizarReceta(idCita, request.notasMedicas(), nombreMedico);
+        actualizarReceta(idCita, actionCitaMedicoDTO.instruccionesAdicionales(), nombreMedico);
 
-        medicamentosReceta(idCita, request.medicamentosList());
+        medicamentosReceta(idCita, actionCitaMedicoDTO.medicamentos());
     }
 
     @Override

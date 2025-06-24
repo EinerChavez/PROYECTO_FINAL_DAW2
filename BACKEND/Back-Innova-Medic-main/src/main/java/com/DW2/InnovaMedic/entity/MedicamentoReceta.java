@@ -20,6 +20,18 @@ public class MedicamentoReceta {
     @JoinColumn(name = "ID_RECETA", nullable = false)
     private Receta receta;
 
-    @Column(name = "MEDICAMENTO", columnDefinition = "TEXT")
+    @Column(name = "MEDICAMENTO", length = 100, nullable = false)
     private String medicamento;
+
+    @Column(name = "DOSIS", length = 50, nullable = false)
+    private String dosis;
+
+    @Column(name = "FRECUENCIA", length = 50, nullable = false)
+    private String frecuencia;
+
+    @Column(name = "DURACION", length = 50, nullable = false)
+    private String duracion;
+
+    @Column(name = "OBSERVACIONES", columnDefinition = "TEXT")
+    private String observaciones;
 }
