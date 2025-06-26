@@ -4,11 +4,14 @@ import com.DW2.InnovaMedic.dto.cita.CitaDTO;
 import com.DW2.InnovaMedic.dto.cita.MedicoResumenDTO;
 import com.DW2.InnovaMedic.dto.registro.MedicoRegistroDTO;
 import com.DW2.InnovaMedic.entity.Cita;
+import com.DW2.InnovaMedic.entity.DisponibilidadMedica;
 import com.DW2.InnovaMedic.entity.Medico;
 import com.DW2.InnovaMedic.repository.CitaRepository;
+import com.DW2.InnovaMedic.repository.DisponibilidadMedicaRepository;
 import com.DW2.InnovaMedic.repository.MedicoRepository;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenanceMedico;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,7 +20,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +33,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
     private final MedicoRepository medicoRepository;
     private final CitaRepository citaRepository;
     private final PasswordEncoder passwordEncoder;
+    private final DisponibilidadMedicaRepository disponibilidamedicarepository;
 
     @Override
     public void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO) throws Exception {
@@ -47,8 +54,8 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
         medico.setCodigoHospital(medicoRegistroDTO.codigoHospital());
 
         medicoRepository.save(medico);
+        registrarDisponibilidadPorDefecto(medico.getIdUsuario());
     }
-
     @Override
     @Cacheable(value = "citasMedico")
     public List<CitaDTO> obtenerCitasMedico(Integer id) throws Exception {
@@ -71,5 +78,48 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
         return medicos.stream()
                 .map(MedicoResumenDTO::fromEntity)
                 .toList();
+    }
+
+    @Transactional
+    public void registrarDisponibilidadPorDefecto(Integer idMedico) {
+        Medico medico = medicoRepository.findById(idMedico)
+                .orElseThrow(() -> new EntityNotFoundException("Médico no encontrado con ID: " + idMedico));
+
+        List<DisponibilidadMedica> disponibilidad = new ArrayList<>();
+
+        List<DisponibilidadMedica.DiaSemana> diasHabiles = List.of(
+                DisponibilidadMedica.DiaSemana.Lunes,
+                DisponibilidadMedica.DiaSemana.Martes,
+                DisponibilidadMedica.DiaSemana.Miércoles,
+                DisponibilidadMedica.DiaSemana.Jueves,
+                DisponibilidadMedica.DiaSemana.Viernes
+        );
+
+        for (DisponibilidadMedica.DiaSemana dia : diasHabiles) {
+            disponibilidad.add(new DisponibilidadMedica(
+                    null,
+                    medico,
+                    dia,
+                    LocalTime.of(8, 0),
+                    LocalTime.of(12, 0))
+            );
+
+            disponibilidad.add(new DisponibilidadMedica(
+                    null,
+                    medico,
+                    dia,
+                    LocalTime.of(14, 0),
+                    LocalTime.of(18, 0))
+            );
+        }
+
+        disponibilidad.add(new DisponibilidadMedica(
+                null,
+                medico,
+                DisponibilidadMedica.DiaSemana.Sábado,
+                LocalTime.of(8, 0),
+                LocalTime.of(12, 0))
+        );
+        disponibilidamedicarepository.saveAll(disponibilidad);
     }
 }
