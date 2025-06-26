@@ -30,6 +30,15 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
 
     @Query("""
             SELECT c FROM Cita c
+                LEFT JOIN FETCH c.receta r
+                LEFT JOIN FETCH r.medicamentos m
+            WHERE c.paciente.idUsuario = :idPaciente
+              AND c.medico.idUsuario = :idMedico
+          """)
+    List<Cita> findByPacienteAndMedicoWithRecetasAndMedicamentos(@Param("idPaciente") Integer idPaciente,
+                                                                 @Param("idMedico") Integer idMedico);
+    @Query("""
+            SELECT c FROM Cita c
                  LEFT JOIN FETCH c.receta r
                  LEFT JOIN FETCH r.medicamentos
                  WHERE c.medico.idUsuario = :idMedico
