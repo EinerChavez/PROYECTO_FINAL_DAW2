@@ -20,10 +20,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -80,6 +80,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
                 .toList();
     }
 
+
     @Transactional
     public void registrarDisponibilidadPorDefecto(Integer idMedico) {
         Medico medico = medicoRepository.findById(idMedico)
@@ -121,5 +122,63 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
                 LocalTime.of(12, 0))
         );
         disponibilidamedicarepository.saveAll(disponibilidad);
+    }
+    @Override
+    public Map<String, List<String>> obtenerHorariosDisponiblesYOcupados(Integer idMedico, LocalDate fecha) {
+        Medico medico = medicoRepository.findById(idMedico)
+                .orElseThrow(() -> new EntityNotFoundException("Médico no encontrado"));
+
+        DisponibilidadMedica.DiaSemana diaSemana = convertirDayOfWeekADiaSemana(fecha.getDayOfWeek());
+        List<DisponibilidadMedica> disponibilidades = disponibilidamedicarepository
+                .findByMedicoAndDiaSemana(medico, diaSemana);
+
+        if (disponibilidades.isEmpty()) {
+            return Map.of(
+                    "disponibles", Collections.emptyList(),
+                    "ocupados", Collections.emptyList()
+            );
+        }
+        List<LocalTime> horasOcupadas = citaRepository.findHorasOcupadas(idMedico, fecha);
+        Set<LocalTime> todosHorarios = new TreeSet<>();
+
+        for (DisponibilidadMedica disp : disponibilidades) {
+            LocalTime hora = disp.getHoraInicio();
+            while (!hora.isAfter(disp.getHoraFin().minusHours(1))) {
+                todosHorarios.add(hora);
+                hora = hora.plusHours(1);
+            }
+            if (!hora.isAfter(disp.getHoraFin())) {
+                todosHorarios.add(hora);
+            }
+        }
+
+        // 4. Separar en disponibles y ocupados
+        List<String> disponibles = new ArrayList<>();
+        List<String> ocupados = new ArrayList<>();
+
+        for (LocalTime hora : todosHorarios) {
+            if (horasOcupadas.contains(hora)) {
+                ocupados.add(hora.toString());
+            } else {
+                disponibles.add(hora.toString());
+            }
+        }
+
+        return Map.of(
+                "disponibles", disponibles,
+                "ocupados", ocupados
+        );
+    }
+
+    private DisponibilidadMedica.DiaSemana convertirDayOfWeekADiaSemana(DayOfWeek dayOfWeek) {
+        return switch (dayOfWeek) {
+            case MONDAY -> DisponibilidadMedica.DiaSemana.Lunes;
+            case TUESDAY -> DisponibilidadMedica.DiaSemana.Martes;
+            case WEDNESDAY -> DisponibilidadMedica.DiaSemana.Miércoles;
+            case THURSDAY -> DisponibilidadMedica.DiaSemana.Jueves;
+            case FRIDAY -> DisponibilidadMedica.DiaSemana.Viernes;
+            case SATURDAY -> DisponibilidadMedica.DiaSemana.Sábado;
+            case SUNDAY -> DisponibilidadMedica.DiaSemana.Domingo;
+        };
     }
 }

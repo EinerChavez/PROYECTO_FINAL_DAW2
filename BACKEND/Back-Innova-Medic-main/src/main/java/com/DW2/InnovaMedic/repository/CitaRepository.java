@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -57,5 +58,8 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
             @Param("fechaInicio") LocalDate fechaInicio,
             @Param("fechaFin") LocalDate fechaFin
     );
-
+    @Query("SELECT c.hora FROM Cita c WHERE c.medico.id = :idMedico AND c.fecha = :fecha")
+    List<LocalTime> findHorasOcupadas(
+            @Param("idMedico") Integer idMedico,
+            @Param("fecha") LocalDate fecha);
 }
