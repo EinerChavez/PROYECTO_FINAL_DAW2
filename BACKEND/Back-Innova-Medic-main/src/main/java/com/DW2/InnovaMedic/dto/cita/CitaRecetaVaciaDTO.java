@@ -4,10 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record CitaRecetaVaciaDTO(
-        Integer idMedico,
-        Integer idPaciente,
-        LocalDate fecha,
-        LocalTime hora,
-        String tratamiento
+        Integer idCita,
+        String instruccionesAdicionales,
+        String firmaMedico,
+        LocalDate fecha
 ) {
 }

@@ -16,18 +16,16 @@ public class MedicamentosController {
 
     private final MaintenanceMedicamento service;
 
-    @GetMapping("/listar")
-    public ResponseEntity<?> listarMedicamentosPorPacienteYMedico(
-            @RequestParam Integer idPaciente,
-            @RequestParam Integer idMedico) {
+    @GetMapping("/listar-por-receta/{idReceta}")
+    public ResponseEntity<?> listarPorIdReceta(@PathVariable Integer idReceta) {
         try {
-            var medicamentos = service.listarMedicamentos(idPaciente, idMedico);
+            var medicamentos = service.listarPorIdReceta(idReceta);
 
             if (medicamentos.isEmpty()) {
                 return ResponseEntity.ok().body(
                         Map.of(
                                 "status", HttpStatus.OK.value(),
-                                "message", "No se encontraron medicamentos para el paciente y médico indicados.",
+                                "message", "No se encontraron medicamentos para la receta indicada.",
                                 "count", 0
                         )
                 );
@@ -40,12 +38,11 @@ public class MedicamentosController {
                             "medicamentos", medicamentos
                     )
             );
-
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(
                     Map.of(
                             "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "error", "Error al listar medicamentos",
+                            "error", "Error al listar medicamentos por receta",
                             "message", e.getMessage()
                     )
             );
@@ -82,4 +79,21 @@ public class MedicamentosController {
             );
         }
     }
+    @DeleteMapping("/eliminar/{idMedicamento}")
+    public ResponseEntity<?> eliminarMedicamento(@PathVariable Integer idMedicamento) {
+        try {
+            service.eliminarMedicamentoPorId(idMedicamento);
+            return ResponseEntity.ok(Map.of(
+                    "status", HttpStatus.OK.value(),
+                    "message", "Medicamento eliminado correctamente"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "error", "Error al eliminar medicamento",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
 }

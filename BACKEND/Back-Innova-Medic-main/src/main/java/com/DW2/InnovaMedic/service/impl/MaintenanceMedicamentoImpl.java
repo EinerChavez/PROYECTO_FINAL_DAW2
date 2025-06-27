@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -26,22 +27,18 @@ public class MaintenanceMedicamentoImpl implements MaintenanceMedicamento {
     private final CitaRepository repoCita;
 
     @Override
-    public List<MedicamentoRecetaDTO> listarMedicamentos(Integer idPaciente, Integer idMedico) {
-        List<Cita> citas = repoCita.findByPacienteAndMedicoWithRecetasAndMedicamentos(idPaciente, idMedico);
+    public List<MedicamentoRecetaDTO> listarPorIdReceta(Integer idReceta) {
+        Optional<Receta> recetaOpt = repoReceta.findByIdWithMedicamentos(idReceta); // método personalizado en el repositorio
 
-        return citas.stream()
-                .flatMap(cita -> {
-                    if (cita.getReceta() != null && cita.getReceta().getMedicamentos() != null) {
-                        return cita.getReceta().getMedicamentos().stream()
-                                .map(med -> new MedicamentoRecetaDTO(
-                                        med.getIdMedicamento(), med.getReceta().getIdReceta(), med.getMedicamento(), med.getDosis(), med.getFrecuencia(), med.getDuracion(), med.getObservaciones()
-                                ));
-                    }
-                    return null;
-                })
-                .filter(medDTO -> medDTO != null)
+        if (recetaOpt.isEmpty() || recetaOpt.get().getMedicamentos() == null) {
+            return List.of();
+        }
+
+        return recetaOpt.get().getMedicamentos().stream()
+                .map(MedicamentoRecetaDTO::fromEntity)
                 .toList();
     }
+
 
     @Override
     public Integer registrarMedicamento(MedicamentoRecetaDTO medicamentoRecetaDTO) throws Exception {
@@ -59,4 +56,12 @@ public class MaintenanceMedicamentoImpl implements MaintenanceMedicamento {
 
         return repoMedicamento.save(nuevo).getIdMedicamento();
     }
+    @Override
+    public void eliminarMedicamentoPorId(Integer idMedicamento) throws Exception {
+        if (!repoMedicamento.existsById(idMedicamento)) {
+            throw new IllegalArgumentException("El medicamento con ID " + idMedicamento + " no existe.");
+        }
+        repoMedicamento.deleteById(idMedicamento);
+    }
+
 }

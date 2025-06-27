@@ -14,4 +14,7 @@ public interface RecetaRepository extends JpaRepository<Receta, Integer> {
     Optional<Receta> findByCita_IdCitas(Integer idCita);
     @Query("SELECT r FROM Receta r WHERE r.cita.paciente.id = :idPaciente")
     List<Receta> findByPacienteId(@Param("idPaciente") Integer idPaciente);
+    @Query("SELECT r FROM Receta r LEFT JOIN FETCH r.medicamentos WHERE r.idReceta = :idReceta")
+    Optional<Receta> findByIdWithMedicamentos(@Param("idReceta") Integer idReceta);
+
 }

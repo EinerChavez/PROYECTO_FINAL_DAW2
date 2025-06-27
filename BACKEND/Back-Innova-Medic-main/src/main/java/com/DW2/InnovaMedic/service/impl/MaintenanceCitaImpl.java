@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -27,40 +28,20 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     private final RecetaRepository recetaRepository;
     private final MedicamentoRecetaRepository medicamentoRecetaRepository;
 
+
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles, citasById"}, allEntries = true)
-    public Integer registrarCitaVacia(CitaRecetaVaciaDTO citaRecetaVaciaDTO) throws Exception {
-        if (citaRecetaVaciaDTO.fecha() == null || citaRecetaVaciaDTO.hora() == null) {
-            throw new IllegalArgumentException("Fecha y hora son requeridos");
-        }
-
-        Medico medico = medicoRepository.findById(citaRecetaVaciaDTO.idMedico())
-                .orElseThrow(() -> new IllegalArgumentException("Medico no encontrado"));
-
-        Paciente paciente = pacienteRepository.findById(citaRecetaVaciaDTO.idPaciente())
-                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
-
-        Cita cita = new Cita();
-        cita.setMedico(medico);
-        cita.setPaciente(paciente);
-        cita.setFecha(citaRecetaVaciaDTO.fecha());
-        cita.setHora(citaRecetaVaciaDTO.hora());
-        cita.setTratamiento(citaRecetaVaciaDTO.tratamiento());
-        cita.setNotasMedicas("aun no detallado");
-        cita.setDiagnostico("aun no detallado");
-        cita.setEstado(Cita.Estado.Pendiente);
-
-        Cita citaGuardada = citaRepository.save(cita);
+    public Integer registrarRecetaPorCita(CitaRecetaVaciaDTO dto) throws Exception {
+        Cita cita = citaRepository.findById(dto.idCita())
+                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
 
         Receta receta = new Receta();
-        receta.setCita(citaGuardada);
-        receta.setFecha(citaRecetaVaciaDTO.fecha());
-        receta.setInstruccionesAdicionales("aun no detallado");
-        receta.setFirmaMedico("aun no detallado");
+        receta.setCita(cita);
+        receta.setFecha(dto.fecha() != null ? dto.fecha() : LocalDate.now());
+        receta.setInstruccionesAdicionales(dto.instruccionesAdicionales());
+        receta.setFirmaMedico(dto.firmaMedico());
 
-        recetaRepository.save(receta);
-
-        return citaGuardada.getIdCitas();
+        Receta recetaGuardada = recetaRepository.save(receta);
+        return recetaGuardada.getIdReceta(); // o el ID de tu receta
     }
 
     @Override
