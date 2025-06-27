@@ -27,6 +27,8 @@ public class CitaController {
     @Autowired
     MaintenanceDisponibilidadMedica maintenanceDisponibilidadMedica;
 
+
+
     @GetMapping("/disponibilidad")
     public ResponseEntity<?> obtenerSlotsDisponibles(
             @RequestParam("idMedico") Integer idMedico,
