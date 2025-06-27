@@ -151,8 +151,6 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
                 todosHorarios.add(hora);
             }
         }
-
-        // 4. Separar en disponibles y ocupados
         List<String> disponibles = new ArrayList<>();
         List<String> ocupados = new ArrayList<>();
 
