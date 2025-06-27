@@ -17,10 +17,6 @@ CREATE TABLE USUARIOS (
     CONTRASENIA VARCHAR(150) NOT NULL
 );
 
-/* correco@.com password123 = paciente
-   thv.chamakito@example.com password123 = medico
-   Token = "QhwOQohWEdy6hrtEVpCR8IMJFgkSl57g"
-   */
 
 -- Tabla de Médicos, solo para aquellos usuarios que tengan un rol de 'Medico'
 CREATE TABLE MEDICOS (
@@ -67,7 +63,6 @@ CREATE TABLE RECETAS (
     FOREIGN KEY (ID_CITA) REFERENCES CITAS(ID_CITAS) ON DELETE CASCADE
 );
 
-select * from RECETAS;
 
 CREATE TABLE MEDICAMENTOS_RECETA (
 	ID_MEDICAMENTO INT auto_increment PRIMARY KEY,
@@ -81,13 +76,6 @@ CREATE TABLE MEDICAMENTOS_RECETA (
     FOREIGN KEY (ID_RECETA) REFERENCES RECETAS(ID_RECETA) ON DELETE CASCADE
 );
 
-<<<<<<<< HEAD:BASE DE DATOS/InnovaMedicine.sql
-========
-select * from MEDICAMENTOS_RECETA;
-
-drop table MEDICAMENTOS_RECETA;
->>>>>>>> 898c1c6f412d817e7adce76cf8bcf789a6fc3af8:BASE DE DATOS/InnovaMedicine-updateMedicamentos.sql
-
 -- Tabla para la disponibilidad de los medicos por día y horario
 CREATE TABLE DISPONIBILIDAD_MEDICA (
 	ID_DISPONIBILIDAD INT AUTO_INCREMENT PRIMARY KEY,
@@ -98,47 +86,85 @@ CREATE TABLE DISPONIBILIDAD_MEDICA (
     FOREIGN KEY (ID_MEDICO) REFERENCES MEDICOS(ID_USUARIO) ON DELETE CASCADE
 );
 
-DELIMITER //
-CREATE PROCEDURE registrar_cita_con_receta_vacia(
-    IN p_id_medico INT,
-    IN p_id_paciente INT,
-    IN p_fecha DATE,
-    IN p_hora TIME,
-    IN p_tratamiento VARCHAR(255),
-    OUT p_id_cita_generada INT
-)
-BEGIN
-    -- Iniciar transacción
-    START TRANSACTION;
-
-    -- 1. Insertar cita médica
-    INSERT INTO CITAS (
-        ID_MEDICO, ID_PACIENTE, FECHA, HORA, TRATAMIENTO,
-        NOTAS_MEDICAS, DIAGNOSTICO
-    ) VALUES (
-        p_id_medico, p_id_paciente, p_fecha, p_hora, p_tratamiento,
-        'aun no detallado', 'aun no detallado'
-    );
-
-    -- 2. Obtener el ID_CITAS recién generado
-    set p_id_cita_generada = LAST_INSERT_ID();
-
-    -- 3. Insertar receta vacía asociada a la cita
-    INSERT INTO RECETAS (
-        ID_CITA, INSTRUCCIONES_ADICIONALES, FIRMA_MEDICO, FECHA
-    ) VALUES (
-        p_id_cita_generada, 'aun no detallado', 'aun no detallado', p_fecha
-    );
-
-    -- 4. Confirmar transacción
-    COMMIT;
-END //
-DELIMITER ;
-
 SELECT*FROM USUARIOS;
 SELECT*FROM MEDICOS;
 SELECT*FROM CITAS;
 SELECT*FROM RECETAS;
 SELECT*FROM MEDICAMENTOS_RECETA;
 SELECT*FROM PACIENTES;
+SELECT*FROM DISPONIBILIDAD_MEDICA;
+
+
+-- Insertar usuarios
+INSERT INTO USUARIOS (NOMBRE, APELLIDO, SEXO, TELEFONO, EMAIL, CONTRASENIA) VALUES
+('Carlos', 'Pérez', 'Masculino', '999111222', 'carlos.medico@mail.com', '$2a$10$8KEaxGHJ9sGjFZK2E7Jjz.DIcKVR0dMkjEUV7Yo3BwH3OvPZ9BGSW'), -- carlos123
+('María', 'Gómez', 'Femenino', '999333444', 'maria.medico@mail.com', '$2a$10$8KEaxGHJ9sGjFZK2E7Jjz.DIcKVR0dMkjEUV7Yo3BwH3OvPZ9BGSW'),-- maria123
+('Luis', 'Ramírez', 'Masculino', '999555666', 'luis.medico@mail.com', '$2a$10$8KEaxGHJ9sGjFZK2E7Jjz.DIcKVR0dMkjEUV7Yo3BwH3OvPZ9BGSW'),-- luis123
+('Ana', 'Salas', 'Femenino', '999777888', 'ana.medico@mail.com', '$2a$10$8KEaxGHJ9sGjFZK2E7Jjz.DIcKVR0dMkjEUV7Yo3BwH3OvPZ9BGSW'),-- ana123
+('Pedro', 'Lopez', 'Masculino', '999999000', 'pedro.paciente@mail.com', '$2a$10$8KEaxGHJ9sGjFZK2E7Jjz.DIcKVR0dMkjEUV7Yo3BwH3OvPZ9BGSW');-- pedro123
+
+-- Insertar médicos 
+INSERT INTO MEDICOS (ID_USUARIO, ESPECIALIDAD, NUMERO_COLEGIADO, CODIGO_MEDICO_HOSPITAL) VALUES
+(1, 'Cardiología', 'COL12345', 'MED-HOSP-001'),
+(2, 'Pediatría', 'COL12346', 'MED-HOSP-002'),
+(3, 'Dermatología', 'COL12347', 'MED-HOSP-003'),
+(4, 'Neurología', 'COL12348', 'MED-HOSP-004');
+
+-- Insertar paciente (usuario 5)
+INSERT INTO PACIENTES (ID_USUARIO, FECHA_NACIMIENTO, TALLA, GRUPO_SANGUINEO, DIRECCION) VALUES
+(5, '1990-06-10', '1.70m', 'O+', 'Av. Los Olivos 123, Lima');
+
+-- Insertar citas
+INSERT INTO CITAS (ID_MEDICO, ID_PACIENTE, FECHA, HORA, TRATAMIENTO, NOTAS_MEDICAS, DIAGNOSTICO, ESTADO) VALUES
+(1, 5, '2025-06-20', '09:00:00', 'Revisión general', 'Paciente estable.', 'Sin novedad', 'Finalizada'),
+(2, 5, '2025-06-21', '10:30:00', 'Evaluación pediátrica', 'Niño con fiebre.', 'Faringitis', 'Finalizada'),
+(3, 5, '2025-06-22', '11:15:00', 'Tratamiento dermatológico', 'Reacción alérgica leve.', 'Dermatitis', 'Pendiente');
+
+-- Insertar recetas 
+INSERT INTO RECETAS (ID_CITA, INSTRUCCIONES_ADICIONALES, FIRMA_MEDICO, FECHA) VALUES
+(1, 'Tomar con alimentos.', 'Dr. Carlos Pérez', '2025-06-20'),
+(2, 'No exponer al sol.', 'Dra. María Gómez', '2025-06-21'),
+(3, 'Evitar lácteos durante tratamiento.', 'Dr. Luis Ramírez', '2025-06-22');
+
+-- Insertar medicamentos para cada receta
+INSERT INTO MEDICAMENTOS_RECETA (ID_RECETA, MEDICAMENTO, DOSIS, FRECUENCIA, DURACION, OBSERVACIONES) VALUES
+(1, 'Paracetamol 500mg', '1 tableta', 'Cada 8 horas', '3 días', 'Tomar con agua'),
+(2, 'Ibuprofeno 200mg', '1 tableta', 'Cada 6 horas', '2 días', 'Suspender si hay dolor estomacal'),
+(3, 'Clorfenamina', '1 cápsula', 'Cada 12 horas', '5 días', 'No manejar vehículos');
+
+-- Insertar disponibilidad médica 
+INSERT INTO DISPONIBILIDAD_MEDICA (ID_MEDICO, DIA_SEMANA, HORA_INICIO, HORA_FIN) VALUES
+(1, 'Lunes', '08:00:00', '12:00:00'),
+(1, 'Lunes', '14:00:00', '18:00:00'),
+(1, 'Martes', '08:00:00', '12:00:00'),
+(1, 'Martes', '14:00:00', '18:00:00'),
+(1, 'Miércoles', '08:00:00', '12:00:00'),
+(1, 'Miércoles', '14:00:00', '18:00:00'),
+(1, 'Jueves', '08:00:00', '12:00:00'),
+(1, 'Jueves', '14:00:00', '18:00:00'),
+(1, 'Viernes', '08:00:00', '12:00:00'),
+(1, 'Viernes', '14:00:00', '18:00:00'),
+(1, 'Sábado', '08:00:00', '12:00:00'),
+
+(2, 'Lunes', '08:00:00', '12:00:00'), (2, 'Lunes', '14:00:00', '18:00:00'),
+(2, 'Martes', '08:00:00', '12:00:00'), (2, 'Martes', '14:00:00', '18:00:00'),
+(2, 'Miércoles', '08:00:00', '12:00:00'), (2, 'Miércoles', '14:00:00', '18:00:00'),
+(2, 'Jueves', '08:00:00', '12:00:00'), (2, 'Jueves', '14:00:00', '18:00:00'),
+(2, 'Viernes', '08:00:00', '12:00:00'), (2, 'Viernes', '14:00:00', '18:00:00'),
+(2, 'Sábado', '08:00:00', '12:00:00'),
+
+(3, 'Lunes', '08:00:00', '12:00:00'), (3, 'Lunes', '14:00:00', '18:00:00'),
+(3, 'Martes', '08:00:00', '12:00:00'), (3, 'Martes', '14:00:00', '18:00:00'),
+(3, 'Miércoles', '08:00:00', '12:00:00'), (3, 'Miércoles', '14:00:00', '18:00:00'),
+(3, 'Jueves', '08:00:00', '12:00:00'), (3, 'Jueves', '14:00:00', '18:00:00'),
+(3, 'Viernes', '08:00:00', '12:00:00'), (3, 'Viernes', '14:00:00', '18:00:00'),
+(3, 'Sábado', '08:00:00', '12:00:00'),
+
+(4, 'Lunes', '08:00:00', '12:00:00'), (4, 'Lunes', '14:00:00', '18:00:00'),
+(4, 'Martes', '08:00:00', '12:00:00'), (4, 'Martes', '14:00:00', '18:00:00'),
+(4, 'Miércoles', '08:00:00', '12:00:00'), (4, 'Miércoles', '14:00:00', '18:00:00'),
+(4, 'Jueves', '08:00:00', '12:00:00'), (4, 'Jueves', '14:00:00', '18:00:00'),
+(4, 'Viernes', '08:00:00', '12:00:00'), (4, 'Viernes', '14:00:00', '18:00:00'),
+(4, 'Sábado', '08:00:00', '12:00:00');
+
 
