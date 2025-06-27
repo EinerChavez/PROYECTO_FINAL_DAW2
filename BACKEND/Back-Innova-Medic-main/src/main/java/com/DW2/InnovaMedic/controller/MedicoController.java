@@ -24,6 +24,7 @@ public class MedicoController {
     MaintenanceMedico maintenanceMedico;
     @Autowired
     private MedicoRepository medicoRepository;
+
     @GetMapping
     public ResponseEntity<?> listarTodosLosMedicos() {
         try {
