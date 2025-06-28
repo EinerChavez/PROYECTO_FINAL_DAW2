@@ -108,10 +108,16 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         receta.setInstruccionesAdicionales(instruccionesAdicionales);
         receta.setFirmaMedico(firmaMedico);
+        if (firmaMedico != null) {
+            receta.setFirmaMedico(firmaMedico);
+        }
         recetaRepository.save(receta);
     }
 
     private void medicamentosReceta(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos) {
+        if (listaMedicamentos.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debes proporcionar los medicamentos");
+        }
         Receta receta = recetaRepository.findByCita_IdCitas(idCita)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
@@ -119,20 +125,6 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
                 ));
 
         List<MedicamentoReceta> medicamentosActuales = medicamentoRecetaRepository.deleteByReceta_IdReceta(receta.getIdReceta());
-
-        for (MedicamentoReceta actual : medicamentosActuales){
-            boolean existeEnNuevos = listaMedicamentos.stream().anyMatch(nuevo ->
-                    actual.getMedicamento().equalsIgnoreCase(nuevo.medicamento().trim()) &&
-                            actual.getDosis().equalsIgnoreCase(nuevo.dosis().trim()) &&
-                            actual.getFrecuencia().equalsIgnoreCase(nuevo.frecuencia().trim()) &&
-                            actual.getDuracion().equalsIgnoreCase(nuevo.duracion().trim()) &&
-                            actual.getObservaciones().equalsIgnoreCase(nuevo.Observaciones().trim())
-            );
-
-            if (!existeEnNuevos) {
-                medicamentoRecetaRepository.delete(actual);
-            }
-        }
 
         for (MedicamentoRecetaRequestDTO nuevo : listaMedicamentos) {
             boolean yaExiste = medicamentosActuales.stream().anyMatch(actual ->
@@ -175,5 +167,12 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         Cita citas = citaRepository.findCitaByIdWithRecetaAndMedicamentos(id);
         return CitaDTO.fromEntity(citas, citas.getReceta());
+    }
+
+    @Override
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+    public void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) throws Exception {
+        actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
+        actualizarReceta(idCita, request.instruccionesAdicionales(), null);
     }
 }

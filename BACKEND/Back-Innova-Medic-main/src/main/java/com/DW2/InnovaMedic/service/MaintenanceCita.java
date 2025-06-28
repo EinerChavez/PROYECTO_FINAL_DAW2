@@ -9,4 +9,5 @@ public interface MaintenanceCita {
     String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) throws Exception;
     void actualizarCitaCompleta (Integer idCita, ActionCitaMedicoDTO request, String nombreMedico) throws Exception;
     CitaDTO obtenerCitas(Integer id) throws  Exception;
+    void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) throws Exception;
 }
