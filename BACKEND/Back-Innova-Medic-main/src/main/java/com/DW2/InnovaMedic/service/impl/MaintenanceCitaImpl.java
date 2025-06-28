@@ -1,9 +1,6 @@
 package com.DW2.InnovaMedic.service.impl;
 
-import com.DW2.InnovaMedic.dto.cita.ActionCitaMedicoDTO;
-import com.DW2.InnovaMedic.dto.cita.CitaDTO;
-import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
-import com.DW2.InnovaMedic.dto.cita.MedicamentoRecetaRequestDTO;
+import com.DW2.InnovaMedic.dto.cita.*;
 import com.DW2.InnovaMedic.entity.*;
 import com.DW2.InnovaMedic.repository.*;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
@@ -42,6 +39,40 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         Receta recetaGuardada = recetaRepository.save(receta);
         return recetaGuardada.getIdReceta(); // o el ID de tu receta
+    }
+    @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles", "citasById"}, allEntries = true)
+    public Integer registrarCitaVacia(RegistrarCita registrarcita) throws Exception {
+        if (registrarcita.fecha() == null || registrarcita.hora() == null) {
+            throw new IllegalArgumentException("Fecha y hora son requeridos");
+        }
+
+        Medico medico = medicoRepository.findById(registrarcita.idMedico())
+                .orElseThrow(() -> new IllegalArgumentException("Medico no encontrado"));
+
+        Paciente paciente = pacienteRepository.findById(registrarcita.idPaciente())
+                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
+
+        Cita cita = new Cita();
+        cita.setMedico(medico);
+        cita.setPaciente(paciente);
+        cita.setFecha(registrarcita.fecha());
+        cita.setHora(registrarcita.hora());
+        cita.setTratamiento("aun no detallado");
+        cita.setNotasMedicas("aun no detallado");
+        cita.setDiagnostico("aun no detallado");
+        cita.setEstado(Cita.Estado.Pendiente);
+
+        Cita citaGuardada = citaRepository.save(cita);
+
+        Receta receta = new Receta();
+        receta.setCita(citaGuardada);
+        receta.setFecha(registrarcita.fecha());
+        receta.setInstruccionesAdicionales("aun no detallado");
+        receta.setFirmaMedico("aun no detallado");
+
+        recetaRepository.save(receta);
+
+        return citaGuardada.getIdCitas();
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.DW2.InnovaMedic.controller;
 
-import com.DW2.InnovaMedic.dto.cita.ActualizarCitaCompletaDTO;
-import com.DW2.InnovaMedic.dto.cita.CitaDTO;
-import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
-import com.DW2.InnovaMedic.dto.cita.RecetaDTO;
+import com.DW2.InnovaMedic.dto.cita.*;
 import com.DW2.InnovaMedic.dto.slot.SlotDTO;
 import com.DW2.InnovaMedic.dto.slot.SlotRequestDTO;
 import com.DW2.InnovaMedic.entity.Cita;
@@ -72,7 +69,26 @@ public class CitaController {
             );
         }
     }
-
+    @PostMapping("/registrar")
+    public ResponseEntity<?> registrarCitaVacia(@RequestBody RegistrarCita registrarcita) {
+        try {
+            Integer idCita = maintenanceCita.registrarCitaVacia(registrarcita);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", Map.of("idCita", idCita)
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error interno al registrar la cita"
+            ));
+        }
+    }
     @PostMapping("/registrarReceta")
     public ResponseEntity<?> registrarRecetaPorIdCita(@RequestBody CitaRecetaVaciaDTO dto) {
         try {
