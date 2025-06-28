@@ -41,7 +41,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         return recetaGuardada.getIdReceta(); // o el ID de tu receta
     }
     @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles", "citasById"}, allEntries = true)
-    public Integer registrarCitaVacia(RegistrarCita registrarcita) throws Exception {
+    public Integer registrarCitaVacia(RegistrarCitaDTO registrarcita) throws Exception {
         if (registrarcita.fecha() == null || registrarcita.hora() == null) {
             throw new IllegalArgumentException("Fecha y hora son requeridos");
         }

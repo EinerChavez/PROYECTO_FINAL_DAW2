@@ -70,7 +70,7 @@ public class CitaController {
         }
     }
     @PostMapping("/registrar")
-    public ResponseEntity<?> registrarCitaVacia(@RequestBody RegistrarCita registrarcita) {
+    public ResponseEntity<?> registrarCitaVacia(@RequestBody RegistrarCitaDTO registrarcita) {
         try {
             Integer idCita = maintenanceCita.registrarCitaVacia(registrarcita);
             return ResponseEntity.ok(Map.of(
