@@ -156,19 +156,19 @@ public class CitaController {
         }
     }
 
-    @PutMapping("/actualizar/{id}/estado")
-    public ResponseEntity<?> actualizarEstado(@PathVariable Integer id, @RequestParam Cita.Estado estado) {
+    @PutMapping("/actualizar/info-cita")
+    public ResponseEntity<?> actualizarInformacionCita(@RequestBody ActualizarCitaCompletaDTO actualizarCitaCompletaDTO) {
         try {
-            String estadoActualizado = maintenanceCita.actualizarEstadoCita(id, estado);
+            maintenanceCita.actualizarInformacionMedicaCita(actualizarCitaCompletaDTO.id(), actualizarCitaCompletaDTO.actionCitaMedicoDTO());
 
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", estadoActualizado
+                    "message", "Datos actualizados"
             ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "Status", "error",
-                    "message", "Error al actualizar estado: " + e.getMessage()
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error interno al editar la informacion de la cita: " + e.getMessage()
             ));
         }
     }
