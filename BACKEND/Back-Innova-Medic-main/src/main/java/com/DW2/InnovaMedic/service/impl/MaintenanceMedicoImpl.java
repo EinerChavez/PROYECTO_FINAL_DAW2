@@ -57,7 +57,6 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
         registrarDisponibilidadPorDefecto(medico.getIdUsuario());
     }
     @Override
-    @Cacheable(value = "citasMedico")
     public List<CitaDTO> obtenerCitasMedico(Integer id) throws Exception {
         if (!medicoRepository.existsById(id)) {
             throw new IllegalArgumentException("Medico con Id " + id + " no existe");
