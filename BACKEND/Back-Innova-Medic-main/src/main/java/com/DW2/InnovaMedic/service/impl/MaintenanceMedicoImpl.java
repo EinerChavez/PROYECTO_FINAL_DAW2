@@ -70,7 +70,6 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
                 .toList();
     }
 
-
     @Override
     @Cacheable(value = "listaMedicos")
     public List<MedicoResumenDTO> listarMedicosResumen() throws Exception {
