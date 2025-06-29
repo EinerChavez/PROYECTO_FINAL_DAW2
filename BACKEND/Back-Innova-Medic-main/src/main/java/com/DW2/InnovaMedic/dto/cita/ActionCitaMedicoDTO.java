@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record ActionCitaMedicoDTO(
+        String tratamiento,
         String notasMedicas,
         String diagnostico,
         LocalDate fecha,

@@ -94,10 +94,11 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         return "Estado de la cita actualizado correctamente a: " + nuevoEstado;
     }
 
-    private void actualizarInformacionCita(Integer idCita, String notasMedicas, String diagnostico, LocalDate fecha, LocalTime hora) {
+    private void actualizarInformacionCita(Integer idCita, String tratamiento, String notasMedicas, String diagnostico, LocalDate fecha, LocalTime hora) {
         Cita cita = citaRepository.findById(idCita)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "La cita " + idCita + " no existe"));
 
+        cita.setTratamiento(tratamiento);
         cita.setNotasMedicas(notasMedicas);
         cita.setDiagnostico(diagnostico);
         cita.setFecha(fecha);
@@ -176,6 +177,6 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     @Override
    // @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
     public void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) throws Exception {
-        actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico(), request.fecha(), request.hora());
+        actualizarInformacionCita(idCita, request.tratamiento(), request.notasMedicas(), request.diagnostico(), request.fecha(), request.hora());
     }
 }
