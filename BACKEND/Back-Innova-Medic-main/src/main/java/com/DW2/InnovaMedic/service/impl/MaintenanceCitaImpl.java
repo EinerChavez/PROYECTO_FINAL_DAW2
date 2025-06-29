@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -75,6 +76,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         return citaGuardada.getIdCitas();
     }
 
+    /*
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles, citasById"}, allEntries = true)
     public String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) throws Exception {
@@ -92,13 +94,16 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         return "Estado de la cita actualizado correctamente a: " + nuevoEstado;
     }
+     */
 
-    private void actualizarInformacionCita(Integer idCita, String notasMedicas, String diagnostico) {
+    private void actualizarInformacionCita(Integer idCita, String notasMedicas, String diagnostico, LocalDate fecha, LocalTime hora) {
         Cita cita = citaRepository.findById(idCita)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "La cita " + idCita + " no existe"));
 
         cita.setNotasMedicas(notasMedicas);
         cita.setDiagnostico(diagnostico);
+        cita.setFecha(fecha);
+        cita.setHora(hora);
         citaRepository.save(cita);
     }
 
@@ -148,6 +153,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
             }
     }
 
+    /*
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles, citasById"}, allEntries = true)
     public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO actionCitaMedicoDTO, String nombreMedico) {
@@ -157,6 +163,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         medicamentosReceta(idCita, actionCitaMedicoDTO.medicamentos());
     }
+     */
 
     @Override
     @Cacheable(value = "citasById")
@@ -172,7 +179,6 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
     public void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) throws Exception {
-        actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
-        actualizarReceta(idCita, request.instruccionesAdicionales(), null);
+        actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico(), request.fecha(), request.hora());
     }
 }

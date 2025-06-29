@@ -110,7 +110,7 @@ public class CitaController {
         }
     }
 
-    @PutMapping("/actualizar/informacion")
+    /*@PutMapping("/actualizar/informacion")
     public ResponseEntity<?> actualizarCitaCompleta(@RequestBody ActualizarCitaCompletaDTO actualizarCitaCompletaDTO) {
         try {
             maintenanceCita.actualizarCitaCompleta(
@@ -155,6 +155,8 @@ public class CitaController {
             ));
         }
     }
+
+     */
 
     @PutMapping("/actualizar/info-cita")
     public ResponseEntity<?> actualizarInformacionCita(@RequestBody ActualizarCitaCompletaDTO actualizarCitaCompletaDTO) {
