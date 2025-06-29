@@ -19,7 +19,7 @@ public class MaintenanceUsuarioImpl implements MaintenanceUsuario {
     UsuarioRepository usuarioRepository;
 
     @Override
-    @Cacheable(value = "perfilUsuario", key = "#idUsuario")
+    //@Cacheable(value = "perfilUsuario", key = "#idUsuario")
     public Object obtenerUsuarioPorId(Integer idUsuario) throws Exception {
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new Exception("Usuario no encontrado."));

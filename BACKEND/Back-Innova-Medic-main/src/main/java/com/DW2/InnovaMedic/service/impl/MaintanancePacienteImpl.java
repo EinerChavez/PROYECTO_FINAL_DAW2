@@ -50,7 +50,7 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
     }
 
     @Override
-    @Cacheable(value = "citasPaciente")
+   // @Cacheable(value = "citasPaciente")
     public List<CitaDTO> obtenerCitasPaciente(Integer id) throws Exception {
         if (!pacienteRepository.existsById(id)) {
             throw new IllegalArgumentException("Paciente con Id " + id + " no existe");

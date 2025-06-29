@@ -33,6 +33,6 @@ public class DisponibilidadMedica {
     private LocalTime horaFin;
 
     public enum DiaSemana {
-        Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo
+        Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo
     }
 }

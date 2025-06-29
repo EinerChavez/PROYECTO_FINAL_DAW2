@@ -32,7 +32,7 @@ public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibi
     CitaRepository citaRepository;
 
     @Override
-    @Cacheable(value = "slotsDisponibles", key = "#slotRequestDTO.idMedico() + '-' + #slotRequestDTO.fechaInicio() + '-' + #slotRequestDTO.fechaFin()")
+    //@Cacheable(value = "slotsDisponibles", key = "#slotRequestDTO.idMedico() + '-' + #slotRequestDTO.fechaInicio() + '-' + #slotRequestDTO.fechaFin()")
     public List<SlotDTO> obtenerSlotsDisponibles(SlotRequestDTO slotRequestDTO) throws Exception {
         List<SlotDTO> slots = new ArrayList<>();
 

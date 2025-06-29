@@ -36,37 +36,28 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         PdfWriter.getInstance(documento, baos);
 
         documento.open();
-        // Fuentes
         Font tituloFont = new Font(Font.HELVETICA, 18, Font.BOLD, Color.BLUE);
         Font subTituloFont = new Font(Font.HELVETICA, 14, Font.BOLD);
         Font normalFont = new Font(Font.HELVETICA, 12, Font.NORMAL);
         Font negritaFont = new Font(Font.HELVETICA, 12, Font.BOLD);
-
-        // Título
         Paragraph titulo = new Paragraph("Clínica Velazquez\nReceta Médica", tituloFont);
         titulo.setAlignment(Element.ALIGN_CENTER);
         titulo.setSpacingAfter(20);
         documento.add(titulo);
-
-        // Datos del paciente y médico
         documento.add(new Paragraph("Paciente: " + recetaDTO.nombrePaciente(), normalFont));
         documento.add(new Paragraph("Grupo sanguíneo: " + recetaDTO.grupoSanguineoPaciente(), normalFont));
         documento.add(new Paragraph("Fecha: " + recetaDTO.fecha(), normalFont));
         documento.add(new Paragraph("Médico: " + recetaDTO.nombreMedico(), normalFont));
         documento.add(new Paragraph("Especialidad: " + recetaDTO.especialidadMedico(), normalFont));
         documento.add(new Paragraph(" "));
-
-        // Diagnóstico
         documento.add(new Paragraph("Diagnóstico:", subTituloFont));
         documento.add(new Paragraph(recetaDTO.diagnostico(), normalFont));
         documento.add(new Paragraph(" "));
 
-        // Tratamiento
         documento.add(new Paragraph("Tratamiento:", subTituloFont));
         documento.add(new Paragraph(recetaDTO.tratamiento(), normalFont));
         documento.add(new Paragraph(" "));
 
-        // Medicamentos en tabla
         documento.add(new Paragraph("Medicamentos recetados:", subTituloFont));
         PdfPTable table = new PdfPTable(2);
         table.setWidthPercentage(100);
@@ -82,15 +73,12 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
             table.addCell(medicamentos.get(i));
         }
         documento.add(table);
-
-        // Instrucciones adicionales
         if (recetaDTO.instrucciones() != null && !recetaDTO.instrucciones().isBlank()) {
             documento.add(new Paragraph("Instrucciones adicionales:", subTituloFont));
             documento.add(new Paragraph(recetaDTO.instrucciones(), normalFont));
             documento.add(new Paragraph(" "));
         }
 
-        // Firma
         documento.add(new Paragraph("Firma del médico: ____________________________", normalFont));
 
         documento.close();

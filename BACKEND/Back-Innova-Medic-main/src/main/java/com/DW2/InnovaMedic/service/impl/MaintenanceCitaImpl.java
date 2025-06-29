@@ -41,7 +41,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         Receta recetaGuardada = recetaRepository.save(receta);
         return recetaGuardada.getIdReceta(); // o el ID de tu receta
     }
-    @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles", "citasById"}, allEntries = true)
+    //@CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles", "citasById"}, allEntries = true)
     public Integer registrarCitaVacia(RegistrarCitaDTO registrarcita) throws Exception {
         if (registrarcita.fecha() == null || registrarcita.hora() == null) {
             throw new IllegalArgumentException("Fecha y hora son requeridos");
@@ -76,9 +76,8 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         return citaGuardada.getIdCitas();
     }
 
-    /*
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles, citasById"}, allEntries = true)
+    //@CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles, citasById"}, allEntries = true)
     public String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) throws Exception {
         if (nuevoEstado == null) {
             throw new IllegalArgumentException("El nuevo estado no puede ser nulo");
@@ -94,7 +93,6 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         return "Estado de la cita actualizado correctamente a: " + nuevoEstado;
     }
-     */
 
     private void actualizarInformacionCita(Integer idCita, String notasMedicas, String diagnostico, LocalDate fecha, LocalTime hora) {
         Cita cita = citaRepository.findById(idCita)
@@ -153,8 +151,8 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
             }
     }
 
-    /*
-    @Override
+
+   /* @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles, citasById"}, allEntries = true)
     public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO actionCitaMedicoDTO, String nombreMedico) {
         actualizarInformacionCita(idCita, actionCitaMedicoDTO.notasMedicas(), actionCitaMedicoDTO.diagnostico());
@@ -163,10 +161,9 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         medicamentosReceta(idCita, actionCitaMedicoDTO.medicamentos());
     }
-     */
-
+*/
     @Override
-    @Cacheable(value = "citasById")
+    //@Cacheable(value = "citasById")
     public CitaDTO obtenerCitas(Integer id) throws Exception {
         if (!citaRepository.existsById(id)){
             throw new IllegalArgumentException("Cita con Id: " + id + " no existe");
@@ -177,7 +174,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     }
 
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+   // @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
     public void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) throws Exception {
         actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico(), request.fecha(), request.hora());
     }

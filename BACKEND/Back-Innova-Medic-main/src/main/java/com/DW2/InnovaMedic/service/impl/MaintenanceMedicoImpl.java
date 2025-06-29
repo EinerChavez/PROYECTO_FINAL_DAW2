@@ -70,7 +70,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
     }
 
     @Override
-    @Cacheable(value = "listaMedicos")
+    //@Cacheable(value = "listaMedicos")
     public List<MedicoResumenDTO> listarMedicosResumen() throws Exception {
         List<Medico> medicos = medicoRepository.findAll();
         return medicos.stream()
@@ -89,7 +89,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
         List<DisponibilidadMedica.DiaSemana> diasHabiles = List.of(
                 DisponibilidadMedica.DiaSemana.Lunes,
                 DisponibilidadMedica.DiaSemana.Martes,
-                DisponibilidadMedica.DiaSemana.Miércoles,
+                DisponibilidadMedica.DiaSemana.Miercoles,
                 DisponibilidadMedica.DiaSemana.Jueves,
                 DisponibilidadMedica.DiaSemana.Viernes
         );
@@ -115,7 +115,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
         disponibilidad.add(new DisponibilidadMedica(
                 null,
                 medico,
-                DisponibilidadMedica.DiaSemana.Sábado,
+                DisponibilidadMedica.DiaSemana.Sabado,
                 LocalTime.of(8, 0),
                 LocalTime.of(12, 0))
         );
@@ -170,10 +170,10 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
         return switch (dayOfWeek) {
             case MONDAY -> DisponibilidadMedica.DiaSemana.Lunes;
             case TUESDAY -> DisponibilidadMedica.DiaSemana.Martes;
-            case WEDNESDAY -> DisponibilidadMedica.DiaSemana.Miércoles;
+            case WEDNESDAY -> DisponibilidadMedica.DiaSemana.Miercoles;
             case THURSDAY -> DisponibilidadMedica.DiaSemana.Jueves;
             case FRIDAY -> DisponibilidadMedica.DiaSemana.Viernes;
-            case SATURDAY -> DisponibilidadMedica.DiaSemana.Sábado;
+            case SATURDAY -> DisponibilidadMedica.DiaSemana.Sabado;
             case SUNDAY -> DisponibilidadMedica.DiaSemana.Domingo;
         };
     }
