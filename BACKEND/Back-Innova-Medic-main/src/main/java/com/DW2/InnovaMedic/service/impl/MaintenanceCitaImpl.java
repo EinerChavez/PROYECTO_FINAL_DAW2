@@ -28,18 +28,13 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
 
     @Override
-    public Integer registrarRecetaPorCita(CitaRecetaVaciaDTO dto) throws Exception {
-        Cita cita = citaRepository.findById(dto.idCita())
-                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
-
-        Receta receta = new Receta();
-        receta.setCita(cita);
-        receta.setFecha(dto.fecha() != null ? dto.fecha() : LocalDate.now());
+    public void actualizarRecetaPorCita(CitaRecetaVaciaDTO dto) throws Exception {
+        Receta receta = recetaRepository.findByCita_IdCitas(dto.idCita())
+                .orElseThrow(() -> new IllegalArgumentException("No existe receta para esta cita"));
         receta.setInstruccionesAdicionales(dto.instruccionesAdicionales());
         receta.setFirmaMedico(dto.firmaMedico());
 
-        Receta recetaGuardada = recetaRepository.save(receta);
-        return recetaGuardada.getIdReceta(); // o el ID de tu receta
+        recetaRepository.save(receta);
     }
     //@CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles", "citasById"}, allEntries = true)
     public Integer registrarCitaVacia(RegistrarCitaDTO registrarcita) throws Exception {

@@ -89,13 +89,13 @@ public class CitaController {
             ));
         }
     }
-    @PostMapping("/registrarReceta")
-    public ResponseEntity<?> registrarRecetaPorIdCita(@RequestBody CitaRecetaVaciaDTO dto) {
+    @PutMapping("/actualizarReceta")
+    public ResponseEntity<?> actualizarReceta(@RequestBody CitaRecetaVaciaDTO dto) {
         try {
-            Integer idReceta = maintenanceCita.registrarRecetaPorCita(dto);
+            maintenanceCita.actualizarRecetaPorCita(dto);
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", Map.of("idReceta", idReceta)
+                    "message", "Receta actualizada correctamente"
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -105,7 +105,7 @@ public class CitaController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of(
                     "status", "error",
-                    "message", "Error al registrar receta: " + e.getMessage()
+                    "message", "Error al actualizar receta: " + e.getMessage()
             ));
         }
     }

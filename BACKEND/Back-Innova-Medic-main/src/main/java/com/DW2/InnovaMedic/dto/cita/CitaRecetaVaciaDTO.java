@@ -6,7 +6,6 @@ import java.time.LocalTime;
 public record CitaRecetaVaciaDTO(
         Integer idCita,
         String instruccionesAdicionales,
-        String firmaMedico,
-        LocalDate fecha
+        String firmaMedico
 ) {
 }
